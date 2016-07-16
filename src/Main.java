@@ -5,23 +5,77 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Main {
 
-    public static void main(String[] args) {
-        List<String> movies = filesInDirectory("/Volumes/KSHITIJ'S H/Movies");
-        List<Flick> flickList = new ArrayList<>();
+    static String[] param = {"title",
+            "year",
+            "rated",
+            "released",
+            "runtime",
+            "genre",
+            "directors",
+            "writers",
+            "actors",
+            "plot",
+        "language",
+            "country",
+            "awards",
+            "poster",
+            "metaScore",
+        "imdB rating",
+    "imdBVotes",
+            "imdBiD",
+            "type",
+            "response"
+    };
+    static int paramLength = param.length;
 
+
+    public static void main(String[] args) {
+
+        /*List<String> movies = linesInFile("flicks.txt");
+        Scanner reader = new Scanner(System.in);
+        System.out.println("Enter s for sorting by imdB Rating and f for filtering by any parameter");
+        String input = reader.next();
+        if(input.toLowerCase() == "f"){
+            filterMovies(movies, fetchFlickData(movies));
+        }*/
+
+
+        Map query = new HashMap<>(paramLength);
+        for(int i = 0; i < paramLength; i++){
+            query.put(param[i], null);
+        }
+        Scanner reader = new Scanner(System.in);
+        System.out.println("Enter search parameters in this format: title:blah, actor:blah, director:blah, writer:blah, genre:blah...");
+        System.out.println("When done press enter");
+        String queryString = reader.next();
+        String[] queryArray = queryString.split(", ");
+        for(int i =0; i<queryArray.length; i++){
+            String[] keyValuePair = queryArray[i].split(":");
+            if(query.containsKey(keyValuePair[0])){
+                query.put(keyValuePair[0], keyValuePair[1]);
+            }
+        }
+        System.out.println(query);
+
+    }
+
+    static List<Flick> fetchFlickData(List<String> movies){
+        System.out.println("Fetching data for your flicks.");
+        List<Flick> flickList = new ArrayList<>();
+        int moviesFetched = 0;
+        int moviesSize = movies.size();
         for(String movie : movies) {
             String url = "http://www.omdbapi.com/?t="+ movie.replaceAll(" ", "+") +"&y=&plot=short&r=json";
             HttpClient client = HttpClientBuilder.create().build();
             HttpGet request = new HttpGet(url);
-
             HttpResponse response = null;
             try {
                 response = client.execute(request);
@@ -29,16 +83,72 @@ public class Main {
                 Gson gson = new Gson();
                 Flick flick = gson.fromJson(json, Flick.class);
                 flickList.add(flick);
+                moviesFetched = moviesFetched+1;
+                System.out.println(moviesFetched+"/"+moviesSize);
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException | java.lang.IllegalStateException e) {
+                System.out.println(e.getCause());
             }
         }
 
-        for(Flick flick: flickList){
-            System.out.println(flick.getTitle());
+        return flickList;
+    }
+
+    static void filterMovies(List movies, List<Flick> flickList){
+        Map query = new HashMap<>(paramLength);
+        for(int i = 0; i < paramLength; i++){
+            query.put(param[i], null);
+        }
+        Scanner reader = new Scanner(System.in);
+        System.out.println("Enter search parameters in this format: title:blah, actor:blah, director:blah, writer:blah, genre:blah...");
+        System.out.println("When done press enter");
+        String queryString = reader.next();
+        String[] queryArray = queryString.split(", ");
+        for(int i =0; i<queryArray.length; i++){
+            String[] keyValuePair = queryArray[i].split(":");
+            if(query.containsKey(keyValuePair[0])){
+                query.put(keyValuePair[0], keyValuePair[1]);
+            }
+        }
+        System.out.println(query);
+
+        //Set queryKeySet = query.keySet();
+        //for(flick: flickList){
+        //    Collection queryValues = query.values();
+        //    for(queryVal :queryValues){
+        //        if(queryVal == )
+        //    }
+        //}
+    }
+
+    static int simScore(Flick queryFlick, Flick inDriveFlick){
+        int score = 0;
+
+        if(queryFlick.getTitle() == inDriveFlick.getTitle()){
+            score = score + 100;
         }
 
+        if(queryFlick.getActors() == inDriveFlick.getActors()){
+            score = score + 10;
+        }
+
+        if(queryFlick.getDirector() == inDriveFlick.getDirector()){
+            score = score + 50;
+        }
+
+        if(queryFlick.getYear() == inDriveFlick.getYear()){
+            score = score + 1;
+        }
+
+        if(queryFlick.getWriter() == inDriveFlick.getWriter()){
+            score = score + 10;
+        }
+
+        if(queryFlick.getGenre() == inDriveFlick.getGenre()){
+            score = score + 5;
+        }
+
+        return score;
     }
 
     private static List linesInFile(String filename) {
