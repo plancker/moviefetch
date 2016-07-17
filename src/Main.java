@@ -40,42 +40,48 @@ public class Main {
     public static void main(String[] args) {
 
         List<String> movies = linesInFile("flicks.txt");
-        Scanner reader = new Scanner(System.in).useDelimiter("\n");;
-        System.out.println("Enter s for sorting by imdB Rating and f for filtering by any parameter.");
-        System.out.println();
-        String input = reader.next();
-        if(Objects.equals(input.toLowerCase(), "f")){
+        File flickListfile = new File("flickList.ser");
 
-            File flickListfile = new File("flickList.ser");
-
-            if (flickListfile.exists()) {
-                List<Flick> flickList = new ArrayList<Flick>();
-                try
-                {
-                    FileInputStream fileIn = new FileInputStream("flickList.ser");
-                    ObjectInputStream in = new ObjectInputStream(fileIn);
-                    flickList = (List<Flick>) in.readObject();
-                    in.close();
-                    fileIn.close();
+        if (flickListfile.exists()) {
+            List<Flick> flickList = new ArrayList<Flick>();
+            try {
+                FileInputStream fileIn = new FileInputStream("flickList.ser");
+                ObjectInputStream in = new ObjectInputStream(fileIn);
+                flickList = (List<Flick>) in.readObject();
+                in.close();
+                fileIn.close();
+                Scanner reader = new Scanner(System.in).useDelimiter("\n");
+                ;
+                System.out.println("Enter s for sorting by imdB Rating and f for filtering by any parameter.");
+                System.out.println();
+                String input = reader.next();
+                if (Objects.equals(input.toLowerCase(), "f")) {
                     filterMovies(flickList);
+                } else {
+                    sortFlicks(flickList);
                 }
-                catch(IOException i)
-                {
-                    i.printStackTrace();
-                    return;
-                }
-                catch(ClassNotFoundException c)
-                {
-                    System.out.println("Flick List class not found");
-                    c.printStackTrace();
-                    return;
-                }
-            } else {
-                filterMovies(fetchFlickData(movies));
+
+            } catch (IOException i) {
+                i.printStackTrace();
+                return;
+            } catch (ClassNotFoundException c) {
+                System.out.println("Flick List class not found");
+                c.printStackTrace();
+                return;
             }
-        }
-        else{
-            sortFlicks(fetchFlickData(movies));
+        } else {
+            List<Flick> flickList = fetchFlickData(movies);
+            Scanner reader = new Scanner(System.in).useDelimiter("\n");
+            ;
+            System.out.println("Enter s for sorting by imdB Rating and f for filtering by any parameter.");
+            System.out.println();
+            String input = reader.next();
+            if (Objects.equals(input.toLowerCase(), "f")) {
+                filterMovies(flickList);
+            } else {
+                sortFlicks(flickList);
+            }
+
         }
 
     }
