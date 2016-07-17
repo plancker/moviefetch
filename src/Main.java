@@ -1,15 +1,15 @@
 import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+
 import java.io.*;
 import java.util.*;
 import java.util.stream.Stream;
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 public class Main {
 
@@ -41,13 +41,14 @@ public class Main {
 
         List<String> movies = linesInFile("flicks.txt");
         Scanner reader = new Scanner(System.in).useDelimiter("\n");;
-        System.out.println("Enter s for sorting by imdB Rating and f for filtering by any parameter");
+        System.out.println("Enter s for sorting by imdB Rating and f for filtering by any parameter.");
+        System.out.println();
         String input = reader.next();
         if(Objects.equals(input.toLowerCase(), "f")){
 
             File flickListfile = new File("flickList.ser");
 
-            /*if(flickListfile.exists()) {
+            if (flickListfile.exists()) {
                 List<Flick> flickList = new ArrayList<Flick>();
                 try
                 {
@@ -69,10 +70,9 @@ public class Main {
                     c.printStackTrace();
                     return;
                 }
-            }
-            else{*/
+            } else {
                 filterMovies(fetchFlickData(movies));
-            //}
+            }
         }
         else{
             sortFlicks(fetchFlickData(movies));
@@ -104,7 +104,7 @@ public class Main {
             }
         }
 
-        /*try
+        try
         {
             FileOutputStream fileOut =
                     new FileOutputStream("flickList.ser");
@@ -118,7 +118,7 @@ public class Main {
         {
             i.printStackTrace();
         }
-        */
+
         System.out.println("--------------------------------------------------------------------------------");
 
         return flickList;
@@ -247,7 +247,7 @@ public class Main {
     }
 }
 
-class Flick {
+class Flick implements Serializable {
     @SerializedName("Title")
     @Expose
     private String title;
