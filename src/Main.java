@@ -72,14 +72,23 @@ public class Main {
         } else {
             List<Flick> flickList = fetchFlickData(movies);
             Scanner reader = new Scanner(System.in).useDelimiter("\n");
-            ;
             System.out.println("Enter s for sorting by imdB Rating and f for filtering by any parameter.");
             System.out.println();
             String input = reader.next();
+            System.out.println();
+
             if (Objects.equals(input.toLowerCase(), "f")) {
                 filterMovies(flickList);
             } else {
-                sortFlicks(flickList);
+                System.out.println(sortFlicks(flickList));
+                Scanner movReader = new Scanner(System.in).useDelimiter("\n");
+                System.out.println("Enter a movie name to search it.");
+                System.out.println();
+                String movInput = movReader.next();
+                System.out.println();
+                flickList.stream().filter(flick -> flick.getTitle() != null && flick.getTitle().contains(movInput)).forEach(flick -> {
+                    System.out.println(flick.toString());
+                });
             }
 
         }
@@ -130,7 +139,7 @@ public class Main {
         return flickList;
     }
 
-    static void sortFlicks(List<Flick> flickList){
+    static Map sortFlicks(List<Flick> flickList) {
         Map<String, Float> flickRatings = new HashMap<>();
         for(Flick flick: flickList){
             try{
@@ -140,18 +149,30 @@ public class Main {
 
             }
         }
+        System.out.println();
+
         System.out.println(sortByValue(flickRatings));
+
+        return sortByValue(flickRatings);
     }
 
 
     public static Map<String, Float> sortByValue(Map<String, Float> map) {
-        Map<String, Float> result = new LinkedHashMap<>();
+        Map<String, Float> ascendingResult = new LinkedHashMap<>();
+        //Map<String, Float> descendingResult = new LinkedHashMap<>();
         Stream<Map.Entry<String, Float>> st = map.entrySet().stream();
 
         st.sorted( Map.Entry.comparingByValue() )
-                .forEachOrdered( e -> result.put(e.getKey(), e.getValue()) );
+                .forEachOrdered(e -> ascendingResult.put(e.getKey(), e.getValue()));
 
-        return result;
+        /*Iterator it = ascendingResult.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println(pair.getKey() + " = " + pair.getValue());
+            it.remove(); // avoids a ConcurrentModificationException
+        }*/
+
+        return ascendingResult;
     }
 
     static void filterMovies(List<Flick> flickList){
@@ -160,6 +181,7 @@ public class Main {
             query.put(param[i], "@fuck");
         }
         Scanner reader = new Scanner(System.in).useDelimiter("\n");
+        System.out.println();
         System.out.println("For filtering movies enter filter parameters in this format: title:, actors:blah, director:blah, writer:blah, genre:blah...");
         System.out.println();
         System.out.println("The available parameters are: title, actors, director, write, genre, language, awards");
@@ -336,6 +358,32 @@ class Flick implements Serializable {
         this.imdbID = queryMap.get("imdbID");
         this.type = queryMap.get("type");
         this.response = queryMap.get("response");
+    }
+
+    @Override
+    public String toString() {
+        return "Flick{" +
+                "title='" + title + '\'' +
+                ", year='" + year + '\'' +
+                ", rated='" + rated + '\'' +
+                ", released='" + released + '\'' +
+                ", runtime='" + runtime + '\'' +
+                ", genre='" + genre + '\'' +
+                ", director='" + director + '\'' +
+                ", writer='" + writer + '\'' +
+                ", actors='" + actors + '\'' +
+                ", plot='" + plot + '\'' +
+                ", language='" + language + '\'' +
+                ", country='" + country + '\'' +
+                ", awards='" + awards + '\'' +
+                ", poster='" + poster + '\'' +
+                ", metascore='" + metascore + '\'' +
+                ", imdbRating='" + imdbRating + '\'' +
+                ", imdbVotes='" + imdbVotes + '\'' +
+                ", imdbID='" + imdbID + '\'' +
+                ", type='" + type + '\'' +
+                ", response='" + response + '\'' +
+                '}';
     }
 
     /**
